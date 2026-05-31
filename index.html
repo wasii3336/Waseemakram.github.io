@@ -1,0 +1,2076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Waseem Akram — Network Engineer & IoT</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Manrope:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+:root {
+  --bg:     #04080f;
+  --bg2:    #080f1c;
+  --bg3:    #0c1828;
+  --ink:    #e4eef7;
+  --muted:  #4e6e8a;
+  --dim:    #1a2d42;
+  --cyan:   #00d4ff;
+  --teal:   #00ffc8;
+  --amber:  #ffb400;
+  --border: rgba(0,212,255,0.12);
+  --card:   rgba(8,15,28,0.9);
+  --glow:   0 0 40px rgba(0,212,255,0.15);
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body:    'Manrope', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  line-height: 1.7;
+}
+
+/* ── CANVAS BACKGROUND ── */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+/* ── GRAIN OVERLAY ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.5;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 3rem;
+  background: rgba(4,8,15,0.8);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: 3px;
+  color: var(--cyan);
+  text-decoration: none;
+  line-height: 1;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.72rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  transition: color 0.3s;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0; right: 0;
+  height: 1px;
+  background: var(--cyan);
+  transform: scaleX(0);
+  transition: transform 0.3s;
+}
+
+.nav-links a:hover { color: var(--cyan); }
+.nav-links a:hover::after { transform: scaleX(1); }
+
+.nav-cta {
+  background: var(--cyan);
+  color: var(--bg) !important;
+  padding: 0.45rem 1.2rem;
+  font-weight: 700 !important;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+}
+
+.nav-cta::after { display: none !important; }
+.nav-cta:hover { background: var(--teal) !important; color: var(--bg) !important; }
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+.hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--cyan);
+  transition: all 0.3s;
+}
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 65px; left: 0; right: 0;
+  background: rgba(4,8,15,0.97);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  z-index: 999;
+  padding: 1.5rem 2rem;
+  flex-direction: column;
+  gap: 1rem;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+  transition: color 0.3s;
+}
+.mobile-menu a:hover { color: var(--cyan); }
+
+/* ── HERO ── */
+#hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 8rem 3rem 4rem;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 5rem;
+  align-items: center;
+  width: 100%;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid var(--border);
+  background: rgba(0,212,255,0.05);
+  padding: 0.4rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 1.8rem;
+  animation: fadeUp 0.8s ease both;
+}
+
+.hero-eyebrow .dot {
+  width: 6px; height: 6px;
+  background: var(--teal);
+  border-radius: 50%;
+  animation: blink 2s ease infinite;
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-size: clamp(4.5rem, 9vw, 9rem);
+  line-height: 0.9;
+  letter-spacing: 4px;
+  margin-bottom: 1.2rem;
+  animation: fadeUp 0.8s 0.1s ease both;
+}
+
+.hero-name .accent { color: var(--cyan); display: block; }
+
+.hero-tagline {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.8s 0.2s ease both;
+}
+
+.hero-desc {
+  font-size: 0.95rem;
+  color: #7a9fb8;
+  max-width: 560px;
+  line-height: 1.95;
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.8s 0.3s ease both;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  animation: fadeUp 0.8s 0.4s ease both;
+  margin-bottom: 3rem;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--cyan);
+  color: var(--bg);
+  padding: 0.85rem 2.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  transition: all 0.3s;
+}
+.btn-primary:hover {
+  background: var(--teal);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,212,255,0.3);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--cyan);
+  padding: 0.85rem 2.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.btn-outline:hover {
+  border-color: var(--cyan);
+  background: rgba(0,212,255,0.06);
+  transform: translateY(-2px);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 3rem;
+  animation: fadeUp 0.8s 0.5s ease both;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  color: var(--cyan);
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 2.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 0.3rem;
+}
+
+/* ── HERO CARD (right side) ── */
+.hero-card {
+  position: relative;
+  animation: fadeUp 0.8s 0.2s ease both;
+}
+
+.hero-card-inner {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+}
+
+.hero-card-inner::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--teal));
+}
+
+.hero-card-inner::after {
+  content: '';
+  position: absolute;
+  bottom: -60px; right: -60px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.profile-avatar {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: var(--bg3);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--cyan);
+  letter-spacing: 2px;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.profile-avatar img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: top;
+  border-radius: 50%;
+  filter: grayscale(10%) contrast(1.05);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(0,255,200,0.08);
+  border: 1px solid rgba(0,255,200,0.2);
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--teal);
+  letter-spacing: 1.5px;
+  margin-bottom: 1.5rem;
+}
+
+.status-badge .dot {
+  width: 5px; height: 5px;
+  background: var(--teal);
+  border-radius: 50%;
+  animation: blink 1.5s infinite;
+}
+
+.card-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid rgba(0,212,255,0.06);
+  font-size: 0.8rem;
+}
+
+.card-info-row:last-child { border-bottom: none; }
+
+.card-info-row i {
+  color: var(--cyan);
+  font-size: 0.8rem;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.card-info-row a {
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+.card-info-row a:hover { color: var(--teal); }
+
+.card-info-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* vendor chips inside hero card */
+.vendor-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.vendor-chip {
+  background: rgba(0,212,255,0.07);
+  border: 1px solid rgba(0,212,255,0.15);
+  padding: 0.2rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: var(--cyan);
+  letter-spacing: 1px;
+}
+
+/* ── SECTIONS WRAPPER ── */
+.section-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 6rem 3rem;
+}
+
+.section-header {
+  margin-bottom: 3.5rem;
+}
+
+.section-num {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.section-num::before {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 1px;
+  background: var(--cyan);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  letter-spacing: 3px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.section-title .accent { color: var(--cyan); }
+
+/* ── DIVIDER ── */
+.divider {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 3rem;
+}
+.divider hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+/* ── ABOUT ── */
+.about-grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.about-text {
+  font-size: 0.95rem;
+  color: #7a9fb8;
+  line-height: 2;
+}
+
+.about-text p { margin-bottom: 1.2rem; }
+
+.about-highlight {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--ink);
+  border-left: 2px solid var(--cyan);
+  padding-left: 1.2rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+
+.quick-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.fact-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.2rem;
+  border-bottom: 1px solid rgba(0,212,255,0.06);
+  transition: background 0.3s;
+}
+
+.fact-row:last-child { border-bottom: none; }
+.fact-row:hover { background: rgba(0,212,255,0.04); }
+
+.fact-row i {
+  color: var(--cyan);
+  font-size: 0.85rem;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.fact-label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 2.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: block;
+}
+
+.fact-val {
+  font-size: 0.82rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.fact-val a {
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+.fact-val a:hover { color: var(--teal); }
+
+/* ── TIMELINE ── */
+.timeline {
+  position: relative;
+  padding-left: 3rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 6px; top: 12px; bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--cyan), transparent);
+  opacity: 0.25;
+}
+
+.tl-item {
+  position: relative;
+  margin-bottom: 2.5rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 2rem 2.5rem;
+  transition: border-color 0.35s, transform 0.35s;
+}
+
+.tl-item:hover {
+  border-color: rgba(0,212,255,0.4);
+  transform: translateX(6px);
+}
+
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -2.65rem; top: 1.8rem;
+  width: 12px; height: 12px;
+  background: var(--bg);
+  border: 2px solid var(--cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(0,212,255,0.5);
+}
+
+.tl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.tl-role {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.tl-company {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--cyan);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-top: 0.2rem;
+}
+
+.tl-date {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+  background: rgba(0,212,255,0.04);
+  border: 1px solid var(--border);
+  padding: 0.25rem 0.7rem;
+  white-space: nowrap;
+}
+
+.tl-loc {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+  text-align: right;
+}
+
+.tl-bullets {
+  list-style: none;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.tl-bullets li {
+  font-size: 0.85rem;
+  color: #6a8fa8;
+  padding-left: 1.2rem;
+  position: relative;
+  line-height: 1.7;
+}
+
+.tl-bullets li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--cyan);
+  font-size: 0.65rem;
+  top: 4px;
+}
+
+.tl-bullets strong { color: var(--amber); }
+
+.tl-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1.2rem;
+}
+
+.tl-tag {
+  background: rgba(0,212,255,0.05);
+  border: 1px solid rgba(0,212,255,0.1);
+  padding: 0.18rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+/* ── EDUCATION ── */
+.edu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.edu-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.35s, transform 0.35s;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+}
+
+.edu-card:hover {
+  border-color: rgba(0,212,255,0.5);
+  transform: translateY(-4px);
+}
+
+.edu-card.current { border-color: rgba(0,212,255,0.3); }
+
+.edu-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--teal));
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+.edu-card:hover::before, .edu-card.current::before { opacity: 1; }
+
+.edu-icon {
+  width: 48px; height: 48px;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: var(--cyan);
+  margin-bottom: 1.5rem;
+}
+
+.edu-degree {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+}
+
+.edu-school {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 2.5px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.edu-date {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-bottom: 1.2rem;
+}
+
+.edu-focus-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.8rem;
+}
+
+.edu-focus-list li {
+  font-size: 0.78rem;
+  color: #6a8fa8;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.edu-focus-list li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--cyan);
+}
+
+.edu-badge {
+  display: inline-block;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-top: 1rem;
+}
+
+/* ── SKILLS ── */
+.skills-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.skill-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 1.8rem;
+  transition: border-color 0.35s;
+}
+
+.skill-card:hover { border-color: rgba(0,212,255,0.35); }
+
+.skill-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.skill-card-icon {
+  width: 34px; height: 34px;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyan);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.skill-card-title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 2.5px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.tag {
+  background: rgba(0,212,255,0.04);
+  border: 1px solid rgba(0,212,255,0.1);
+  padding: 0.28rem 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #7a9fb8;
+  letter-spacing: 0.5px;
+  transition: all 0.3s;
+  cursor: default;
+}
+
+.tag:hover {
+  background: rgba(0,212,255,0.1);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.tag.teal {
+  border-color: rgba(0,255,200,0.18);
+  color: var(--teal);
+  background: rgba(0,255,200,0.04);
+}
+
+.tag.teal:hover {
+  background: rgba(0,255,200,0.1);
+  border-color: var(--teal);
+}
+
+.tag.amber {
+  border-color: rgba(255,180,0,0.2);
+  color: var(--amber);
+  background: rgba(255,180,0,0.04);
+}
+
+/* ── VENDORS SECTION ── */
+.vendors-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.vendor-block {
+  flex: 1;
+  min-width: 140px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 1.2rem 1.5rem;
+  text-align: center;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.vendor-block:hover {
+  border-color: rgba(0,212,255,0.4);
+  transform: translateY(-3px);
+}
+
+.vendor-block i {
+  font-size: 1.4rem;
+  color: var(--cyan);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.vendor-block-name {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink);
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+/* ── LANGUAGES ── */
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.lang-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  text-align: center;
+  transition: border-color 0.35s, transform 0.35s;
+  position: relative;
+  overflow: hidden;
+}
+
+.lang-card:hover {
+  border-color: rgba(0,212,255,0.4);
+  transform: translateY(-4px);
+}
+
+.lang-flag { font-size: 2.2rem; margin-bottom: 0.8rem; }
+
+.lang-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.4rem;
+}
+
+.lang-level {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  background: rgba(0,212,255,0.06);
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.8rem;
+  display: inline-block;
+  margin-bottom: 0.6rem;
+}
+
+.lang-desc { font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); }
+
+/* ── CERTIFICATIONS ── */
+.cert-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.cert-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  transition: border-color 0.35s, transform 0.35s;
+  position: relative;
+  overflow: hidden;
+}
+
+.cert-card:hover {
+  border-color: rgba(0,212,255,0.5);
+  transform: translateY(-4px);
+}
+
+.cert-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--teal));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s;
+}
+
+.cert-card:hover::after { transform: scaleX(1); }
+
+.cert-issuer {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.cert-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.cert-date {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--cyan);
+  letter-spacing: 2px;
+}
+
+.cert-bullets {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.cert-bullets li {
+  font-size: 0.78rem;
+  color: #5a7a92;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.cert-bullets li::before {
+  content: '–';
+  position: absolute;
+  left: 0;
+  color: var(--cyan);
+}
+
+.cert-verify {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  text-decoration: none;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  padding: 0.4rem 1rem;
+  margin-top: 0.5rem;
+  align-self: flex-start;
+  transition: all 0.3s;
+}
+
+.cert-verify:hover {
+  background: rgba(0,212,255,0.08);
+  border-color: var(--cyan);
+}
+
+/* ── PROJECT ── */
+.project-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.35s;
+}
+
+.project-card:hover { border-color: rgba(0,212,255,0.4); }
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--teal), var(--cyan));
+}
+
+.project-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+
+.project-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  letter-spacing: 2px;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+
+.project-meta {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 2px;
+  margin-bottom: 1.5rem;
+}
+
+.project-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.project-desc {
+  font-size: 0.88rem;
+  color: #6a8fa8;
+  line-height: 1.95;
+}
+
+.project-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.metric-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(0,212,255,0.04);
+  border: 1px solid var(--border);
+  padding: 0.9rem 1.2rem;
+}
+
+.metric-val {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--amber);
+  letter-spacing: 2px;
+  min-width: 60px;
+}
+
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.project-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.project-pill {
+  background: rgba(0,255,200,0.05);
+  border: 1px solid rgba(0,255,200,0.15);
+  padding: 0.3rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--teal);
+  letter-spacing: 1px;
+}
+
+/* ── CONTACT ── */
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.contact-intro {
+  font-size: 0.9rem;
+  color: #6a8fa8;
+  line-height: 1.95;
+  margin-bottom: 2rem;
+}
+
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.contact-link {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 1rem 1.4rem;
+  text-decoration: none;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.contact-link:hover {
+  border-color: var(--cyan);
+  transform: translateX(5px);
+}
+
+.contact-icon {
+  width: 36px; height: 36px;
+  background: rgba(0,212,255,0.07);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyan);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.contact-link-label {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 2.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: block;
+}
+
+.contact-link-val {
+  font-size: 0.85rem;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-field { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.form-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 2.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.form-input, .form-textarea {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 0.85rem 1.1rem;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.3s;
+  resize: none;
+}
+
+.form-input:focus, .form-textarea:focus { border-color: var(--cyan); }
+.form-input::placeholder, .form-textarea::placeholder { color: var(--dim); }
+.form-textarea { height: 140px; }
+
+/* ── FOOTER ── */
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 2.5rem 2rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  letter-spacing: 2px;
+}
+
+footer .accent { color: var(--cyan); }
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 0.8rem;
+}
+
+.footer-links a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover { color: var(--cyan); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 960px) {
+  nav { padding: 1rem 1.5rem; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+
+  .section-wrap { padding: 4rem 1.5rem; }
+
+  #hero { padding: 7rem 1.5rem 4rem; }
+  .hero-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+  .hero-card { order: -1; }
+
+  .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .edu-grid { grid-template-columns: 1fr; }
+  .skills-layout { grid-template-columns: 1fr; }
+  .lang-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .cert-grid { grid-template-columns: 1fr; }
+  .contact-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+  .project-body { grid-template-columns: 1fr; gap: 2rem; }
+
+  .tl-header { flex-direction: column; gap: 0.5rem; }
+  .tl-loc { text-align: left; }
+  .hero-stats { gap: 2rem; }
+}
+
+@media (max-width: 480px) {
+  .hero-name { font-size: 3.5rem; }
+  .hero-btns { flex-direction: column; }
+  .btn-primary, .btn-outline { justify-content: center; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- Animated background -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">WA</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#certifications">Certs</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about" onclick="toggleMenu()">About</a>
+  <a href="#experience" onclick="toggleMenu()">Experience</a>
+  <a href="#education" onclick="toggleMenu()">Education</a>
+  <a href="#skills" onclick="toggleMenu()">Skills</a>
+  <a href="#certifications" onclick="toggleMenu()">Certifications</a>
+  <a href="#projects" onclick="toggleMenu()">Projects</a>
+  <a href="#contact" onclick="toggleMenu()">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="dot"></span>
+        Open to Global Opportunities
+      </div>
+      <h1 class="hero-name">
+        Waseem<span class="accent">Akram</span>
+      </h1>
+      <p class="hero-tagline">Network Infrastructure Engineer &amp; IoT Graduate</p>
+      <p class="hero-desc">
+        3+ years deploying enterprise LAN/WLAN networks across Pakistan with MikroTik, Cisco, Ubiquiti &amp; pfSense — now pursuing an MSc in Internet of Things at the University of Salerno, Italy. Specializing in network security, fiber optics, and connected infrastructure.
+      </p>
+      <div class="hero-btns">
+        <a href="#contact" class="btn-primary"><i class="fas fa-paper-plane"></i> Get in Touch</a>
+        <a href="https://www.linkedin.com/in/waseem-akram-network-engineer" target="_blank" class="btn-outline"><i class="fab fa-linkedin"></i> LinkedIn</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-num">3+</div>
+          <div class="stat-label">Years Experience</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">3</div>
+          <div class="stat-label">Engineering Roles</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">C2</div>
+          <div class="stat-label">English Level</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">30%</div>
+          <div class="stat-label">Efficiency Gain</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right card -->
+    <div class="hero-card">
+      <div class="hero-card-inner">
+        <div class="profile-avatar">
+          <img src="photo.jpg.jpeg" alt="Waseem Akram" onerror="this.style.display='none';this.parentElement.textContent='WA'"/>
+        </div>
+        <div class="status-badge"><span class="dot"></span> Available for Opportunities</div>
+
+        <span class="card-info-label">Quick Info</span>
+        <div class="card-info-row"><i class="fas fa-map-marker-alt"></i><span>Salerno, Italy</span></div>
+        <div class="card-info-row"><i class="fas fa-envelope"></i><a href="mailto:waseemakramdc25@gmail.com">waseemakramdc25@gmail.com</a></div>
+        <div class="card-info-row"><i class="fab fa-whatsapp"></i><a href="https://wa.me/393280006347">+39 328 000 6347</a></div>
+        <div class="card-info-row"><i class="fab fa-linkedin"></i><a href="https://www.linkedin.com/in/waseem-akram-network-engineer" target="_blank">LinkedIn Profile</a></div>
+        <div class="card-info-row"><i class="fas fa-graduation-cap"></i><span>MSc IoT — UNISA</span></div>
+
+        <span class="card-info-label" style="margin-top:1rem">Core Vendors</span>
+        <div class="vendor-chips">
+          <span class="vendor-chip">MikroTik</span>
+          <span class="vendor-chip">Cisco</span>
+          <span class="vendor-chip">Ubiquiti</span>
+          <span class="vendor-chip">pfSense</span>
+          <span class="vendor-chip">OPNsense</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><hr></div>
+
+<!-- ABOUT -->
+<div class="section-wrap" id="about">
+  <div class="reveal">
+    <div class="section-header">
+      <div class="section-num">01 · Profile</div>
+      <h2 class="section-title">About <span class="accent">Me</span></h2>
+    </div>
+    <div class="about-grid">
+      <div>
+        <p class="about-highlight">Network infrastructure professional with 3+ years of hands-on experience deploying and managing enterprise LAN/WLAN environments using MikroTik, Cisco, Ubiquiti, and pfSense.</p>
+        <div class="about-text">
+          <p>Skilled in VLAN segmentation, DHCP/DNS configuration, routing protocols (OSPF, STP), firewall policy design, and IP-based CCTV surveillance systems. Led a 5-member field team on a city-scale infrastructure rollout, achieving a 30% efficiency improvement while meeting all SLA commitments.</p>
+          <p>Currently pursuing an MSc in Internet of Things at the University of Salerno (Italy), expanding into cybersecurity and network security through ISC2 certification training. Known for strong troubleshooting, client-facing communication, and translating technical complexity into real-world solutions.</p>
+        </div>
+      </div>
+      <div class="quick-facts">
+        <div class="fact-row">
+          <i class="fas fa-map-marker-alt"></i>
+          <div>
+            <span class="fact-label">Location</span>
+            <div class="fact-val">Salerno, Italy</div>
+          </div>
+        </div>
+        <div class="fact-row">
+          <i class="fas fa-envelope"></i>
+          <div>
+            <span class="fact-label">Email</span>
+            <div class="fact-val"><a href="mailto:waseemakramdc25@gmail.com">waseemakramdc25@gmail.com</a></div>
+          </div>
+        </div>
+        <div class="fact-row">
+          <i class="fab fa-whatsapp"></i>
+          <div>
+            <span class="fact-label">WhatsApp</span>
+            <div class="fact-val"><a href="https://wa.me/393280006347">+39 328 000 6347</a></div>
+          </div>
+        </div>
+        <div class="fact-row">
+          <i class="fab fa-linkedin"></i>
+          <div>
+            <span class="fact-label">LinkedIn</span>
+            <div class="fact-val"><a href="https://www.linkedin.com/in/waseem-akram-network-engineer" target="_blank">waseem-akram-network-engineer</a></div>
+          </div>
+        </div>
+        <div class="fact-row">
+          <i class="fas fa-graduation-cap"></i>
+          <div>
+            <span class="fact-label">Currently Studying</span>
+            <div class="fact-val">MSc IoT — University of Salerno</div>
+          </div>
+        </div>
+        <div class="fact-row">
+          <i class="fas fa-globe"></i>
+          <div>
+            <span class="fact-label">Availability</span>
+            <div class="fact-val">Remote &amp; Global Roles</div>
+          </div>
+        </div>
+        <div class="fact-row">
+          <i class="fas fa-link"></i>
+          <div>
+            <span class="fact-label">Portfolio</span>
+            <div class="fact-val"><a href="https://wasii3336.github.io/Waseemakram.github.io/" target="_blank">wasii3336.github.io</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"><hr></div>
+
+<!-- EXPERIENCE -->
+<div class="section-wrap" id="experience">
+  <div class="reveal">
+    <div class="section-header">
+      <div class="section-num">02 · Career</div>
+      <h2 class="section-title">Work <span class="accent">Experience</span></h2>
+    </div>
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-header">
+          <div>
+            <div class="tl-role">Network Infrastructure Engineer</div>
+            <div class="tl-company">DOS Networks Pvt Ltd</div>
+          </div>
+          <div>
+            <div class="tl-date">Mar 2022 — Jun 2024</div>
+            <div class="tl-loc"><i class="fas fa-map-marker-alt" style="margin-right:4px;color:var(--muted)"></i>Islamabad, Pakistan</div>
+          </div>
+        </div>
+        <ul class="tl-bullets">
+          <li>Deployed and integrated on-premise network equipment (MikroTik, Cisco, Ubiquiti) across diverse enterprise environments, ensuring compatibility with existing LAN/WLAN infrastructure.</li>
+          <li>Configured VLANs, DHCP, routing protocols (OSPF, STP), and firewall rules on pfSense and MikroTik to meet customer-specific security and performance requirements.</li>
+          <li>Acted as primary technical liaison for enterprise clients — communicating complex network concepts and translating solutions into measurable business outcomes.</li>
+          <li>Designed and installed city-wide IP-based CCTV surveillance networks, conducting end-to-end installation, testing, and production readiness verification.</li>
+          <li>Led a 5-member technical team on a major infrastructure rollout — achieving a <strong>30% efficiency improvement</strong> and meeting all SLA commitments.</li>
+          <li>Maintained detailed deployment documentation and technical reports to support operational consistency and scalability.</li>
+        </ul>
+        <div class="tl-tags">
+          <span class="tl-tag">MikroTik</span>
+          <span class="tl-tag">Cisco</span>
+          <span class="tl-tag">Ubiquiti</span>
+          <span class="tl-tag">pfSense</span>
+          <span class="tl-tag">VLAN</span>
+          <span class="tl-tag">OSPF</span>
+          <span class="tl-tag">Firewall</span>
+          <span class="tl-tag">CCTV</span>
+          <span class="tl-tag">Team Lead</span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-header">
+          <div>
+            <div class="tl-role">Fiber Optics Engineer</div>
+            <div class="tl-company">DOS Networks Pvt Ltd</div>
+          </div>
+          <div>
+            <div class="tl-date">Jul 2021 — Feb 2022</div>
+            <div class="tl-loc"><i class="fas fa-map-marker-alt" style="margin-right:4px;color:var(--muted)"></i>Islamabad, Pakistan</div>
+          </div>
+        </div>
+        <ul class="tl-bullets">
+          <li>Executed full lifecycle fiber optic deployments: site evaluation, cable routing, splicing, OTDR testing, and validation across multi-site enterprise networks.</li>
+          <li>Delivered broadband capacity upgrades that significantly improved data transmission performance and bandwidth availability for enterprise clients.</li>
+          <li>Maintained signal integrity and long-term infrastructure reliability through systematic monitoring and component analysis.</li>
+        </ul>
+        <div class="tl-tags">
+          <span class="tl-tag">Fiber Splicing</span>
+          <span class="tl-tag">OTDR Testing</span>
+          <span class="tl-tag">Site Evaluation</span>
+          <span class="tl-tag">Signal Integrity</span>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-header">
+          <div>
+            <div class="tl-role">Network Support Engineer</div>
+            <div class="tl-company">DOS Networks Pvt Ltd</div>
+          </div>
+          <div>
+            <div class="tl-date">Jan 2021 — Jun 2021</div>
+            <div class="tl-loc"><i class="fas fa-map-marker-alt" style="margin-right:4px;color:var(--muted)"></i>Islamabad, Pakistan</div>
+          </div>
+        </div>
+        <ul class="tl-bullets">
+          <li>Configured routers, switches, and access points in line with tailored network architectures, supporting secure and scalable communication.</li>
+          <li>Diagnosed and resolved complex connectivity issues to maintain availability in high-demand environments, with clear escalation procedures.</li>
+        </ul>
+        <div class="tl-tags">
+          <span class="tl-tag">Router Config</span>
+          <span class="tl-tag">Troubleshooting</span>
+          <span class="tl-tag">Access Points</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="divider"><hr></div>
+
+<!-- EDUCATION -->
+<div class="section-wrap" id="education">
+  <div class="reveal">
+    <div class="section-header">
+      <div class="section-num">03 · Academic</div>
+      <h2 class="section-title">Education &amp; <span class="accent">Training</span></h2>
+    </div>
+    <div class="edu-grid">
+      <div class="edu-card current">
+        <div class="edu-icon"><i class="fas fa-microchip"></i></div>
+        <div class="edu-degree">MSc — Internet of Things</div>
+        <div class="edu-school">Università degli Studi di Salerno (UNISA)</div>
+        <div class="edu-date">Sep 2024 — Present · Salerno, Italy</div>
+        <ul class="edu-focus-list">
+          <li>IoT Architecture &amp; Connected Systems</li>
+          <li>Network Security &amp; Cybersecurity</li>
+          <li>Embedded Systems</li>
+          <li>Quantum-Safe Communications</li>
+        </ul>
+        <span class="edu-badge">EQF Level 7 · In Progress</span>
+      </div>
+      <div class="edu-card">
+        <div class="edu-icon"><i class="fas fa-laptop-code"></i></div>
+        <div class="edu-degree">BSc — Computer Science</div>
+        <div class="edu-school">Allama Iqbal Open University</div>
+        <div class="edu-date">Jun 2018 — Jul 2022 · Islamabad, Pakistan</div>
+        <ul class="edu-focus-list">
+          <li>Computer Science Fundamentals</li>
+          <li>Networking &amp; Systems Administration</li>
+          <li>Software Engineering Principles</li>
+        </ul>
+        <span class="edu-badge">Completed</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"><hr></div>
+
+<!-- SKILLS -->
+<div class="section-wrap" id="skills">
+  <div class="reveal">
+    <div class="section-header">
+      <div class="section-num">04 · Expertise</div>
+      <h2 class="section-title">Skills &amp; <span class="accent">Competencies</span></h2>
+    </div>
+
+    <!-- Vendor row -->
+    <div class="vendors-row">
+      <div class="vendor-block">
+        <i class="fas fa-server"></i>
+        <div class="vendor-block-name">MikroTik</div>
+      </div>
+      <div class="vendor-block">
+        <i class="fas fa-network-wired"></i>
+        <div class="vendor-block-name">Cisco</div>
+      </div>
+      <div class="vendor-block">
+        <i class="fas fa-wifi"></i>
+        <div class="vendor-block-name">Ubiquiti</div>
+      </div>
+      <div class="vendor-block">
+        <i class="fas fa-fire"></i>
+        <div class="vendor-block-name">pfSense</div>
+      </div>
+      <div class="vendor-block">
+        <i class="fas fa-shield-halved"></i>
+        <div class="vendor-block-name">OPNsense</div>
+      </div>
+      <div class="vendor-block">
+        <i class="fas fa-eye"></i>
+        <div class="vendor-block-name">Wireshark</div>
+      </div>
+    </div>
+
+    <div class="skills-layout">
+      <div class="skill-card">
+        <div class="skill-card-head">
+          <div class="skill-card-icon"><i class="fas fa-network-wired"></i></div>
+          <div class="skill-card-title">Networking Protocols</div>
+        </div>
+        <div class="tag-cloud">
+          <span class="tag">LAN / WAN</span>
+          <span class="tag">VLANs</span>
+          <span class="tag">DHCP</span>
+          <span class="tag">DNS</span>
+          <span class="tag">NAT</span>
+          <span class="tag">OSPF</span>
+          <span class="tag">STP</span>
+          <span class="tag">IP Subnetting</span>
+          <span class="tag">Routing Protocols</span>
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-card-head">
+          <div class="skill-card-icon"><i class="fas fa-shield-alt"></i></div>
+          <div class="skill-card-title">Security</div>
+        </div>
+        <div class="tag-cloud">
+          <span class="tag">Firewall Rules</span>
+          <span class="tag">Access Control Lists</span>
+          <span class="tag">IDS / IPS</span>
+          <span class="tag">Network Segmentation</span>
+          <span class="tag">Secure Protocols</span>
+          <span class="tag">DoS / MitM Awareness</span>
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-card-head">
+          <div class="skill-card-icon"><i class="fas fa-plug"></i></div>
+          <div class="skill-card-title">Hardware &amp; Infrastructure</div>
+        </div>
+        <div class="tag-cloud">
+          <span class="tag">Fiber Optic Splicing</span>
+          <span class="tag">OTDR Testing</span>
+          <span class="tag">CCTV System Design</span>
+          <span class="tag">LAN/WAN Setup</span>
+          <span class="tag">Structured Cabling</span>
+          <span class="tag">Site Survey &amp; BOQ</span>
+        </div>
+      </div>
+
+      <div class="skill-card">
+        <div class="skill-card-head">
+          <div class="skill-card-icon"><i class="fas fa-seedling"></i></div>
+          <div class="skill-card-title">Currently Learning</div>
+        </div>
+        <div class="tag-cloud">
+          <span class="tag teal">IoT Architecture</span>
+          <span class="tag teal">Cybersecurity (ISC2 CC)</span>
+          <span class="tag teal">Embedded Systems</span>
+          <span class="tag amber">Quantum-Safe Cryptography</span>
+          <span class="tag teal">Italian Language</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"><hr></div>
+
+<!-- LANGUAGES -->
+<div class="section-wrap" id="languages">
+  <div class="reveal">
+    <div class="section-header">
+      <div class="section-num">05 · Communication</div>
+      <h2 class="section-title">Language <span class="accent">Skills</span></h2>
+    </div>
+    <div class="lang-grid">
+      <div class="lang-card">
+        <div class="lang-flag">🇵🇰</div>
+        <div class="lang-name">Urdu</div>
+        <div class="lang-level">Native</div>
+        <div class="lang-desc">Mother tongue — full professional fluency</div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-flag">🇬🇧</div>
+        <div class="lang-name">English</div>
+        <div class="lang-level">C2 — Advanced</div>
+        <div class="lang-desc">Full professional proficiency · Reading, Writing, Speaking</div>
+      </div>
+      <div class="lang-card">
+        <div class="lang-flag">🇮🇹</div>
+        <div class="lang-name">Italian</div>
+        <div class="lang-level">A1 — Elementary</div>
+        <div class="lang-desc">Currently improving while living in Salerno, Italy</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"><hr></div>
+
+<!-- CERTIFICATIONS -->
+<div class="section-wrap" id="certifications">
+  <div class="reveal">
+    <div class="section-header">
+      <div class="section-num">06 · Credentials</div>
+      <h2 class="section-title">Certifi<span class="accent">cations</span></h2>
+    </div>
+    <div class="cert-grid">
+      <div class="cert-card">
+        <div class="cert-issuer"><i class="fas fa-lock" style="margin-right:6px;color:var(--cyan)"></i>ISC2 — Certified in Cybersecurity</div>
+        <div class="cert-name">CC Domain 4: Network Security</div>
+        <div class="cert-date">March 2026</div>
+        <ul class="cert-bullets">
+          <li>Network security principles: segmentation, secure protocols, access control</li>
+          <li>Firewalls, IDS/IPS, and network monitoring tools</li>
+          <li>Common threats: spoofing, DoS, man-in-the-middle attacks</li>
+          <li>Protecting networks through layered security approaches</li>
+        </ul>
+        <a href="https://isc2.obrizum.io/org/cc/certificate/e92b4635-ea5d-4d82-b34a-4c0ce15656e2" target="_blank" class="cert-verify">
+          <i class="fas fa-external-link-alt"></i> Verify Certificate
+        </a>
+      </div>
+      <div class="cert-card">
+        <div class="cert-issuer"><i class="fab fa-google" style="margin-right:6px;color:var(--cyan)"></i>Google / Coursera</div>
+        <div class="cert-name">Technical Support Fundamentals</div>
+        <div class="cert-date">March 2025</div>
+        <ul class="cert-bullets">
+          <li>Fundamentals of IT support, troubleshooting, and customer service</li>
+          <li>Computer hardware, operating systems, networking basics</li>
+          <li>Diagnosing and resolving technical issues for users</li>
+          <li>IT tools, documentation, and support workflows</li>
+        </ul>
+        <a href="https://www.coursera.org/account/accomplishments/verify/QGT0IJ1UXXNY" target="_blank" class="cert-verify">
+          <i class="fas fa-external-link-alt"></i> Verify Certificate
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"><hr></div>
+
+<!-- PROJECTS -->
+<div class="section-wrap" id="projects">
+  <div class="reveal">
+    <div class="section-header">
+      <div class="section-num">07 · Portfolio</div>
+      <h2 class="section-title">Featured <span class="accent">Project</span></h2>
+    </div>
+    <div class="project-card">
+      <div class="project-eyebrow">Infrastructure · CCTV · IP Networking · 2022 – 2024</div>
+      <div class="project-title">City-Wide IP CCTV Surveillance Network</div>
+      <div class="project-meta">DOS Networks Pvt Ltd · Islamabad, Pakistan</div>
+      <div class="project-body">
+        <div class="project-desc">
+          Designed and deployed a large-scale IP-based CCTV surveillance network across an entire city. Led end-to-end project delivery including site surveys, equipment selection, network architecture design (VLANs, routing, subnetting), structured cabling, IP camera installation, and integration with central monitoring infrastructure.<br><br>
+          Required coordinating a 5-member engineering team, managing client communication at executive level, and ensuring all SLA commitments were met on schedule. The project became a key reference for future enterprise rollouts.
+        </div>
+        <div class="project-metrics">
+          <div class="metric-row">
+            <div class="metric-val">30%</div>
+            <div class="metric-label">Deployment Efficiency Gain</div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-val">5</div>
+            <div class="metric-label">Team Members Led</div>
+          </div>
+          <div class="metric-row">
+            <div class="metric-val">100%</div>
+            <div class="metric-label">SLA Commitments Met</div>
+          </div>
+        </div>
+      </div>
+      <div class="project-pills">
+        <span class="project-pill">IP Camera Integration</span>
+        <span class="project-pill">Multi-Site Deployment</span>
+        <span class="project-pill">VLAN Architecture</span>
+        <span class="project-pill">MikroTik / Cisco</span>
+        <span class="project-pill">Team Leadership</span>
+        <span class="project-pill">SLA Delivery</span>
+        <span class="project-pill">Client Management</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"><hr></div>
+
+<!-- CONTACT -->
+<div class="section-wrap" id="contact">
+  <div class="reveal">
+    <div class="section-header">
+      <div class="section-num">08 · Connect</div>
+      <h2 class="section-title">Get in <span class="accent">Touch</span></h2>
+    </div>
+    <div class="contact-layout">
+      <div>
+        <p class="contact-intro">
+          Open to network engineering roles, IoT projects, and cybersecurity opportunities — remote, hybrid, or relocation. Feel free to reach out directly via email, WhatsApp, or LinkedIn.
+        </p>
+        <div class="contact-links">
+          <a href="mailto:waseemakramdc25@gmail.com" class="contact-link">
+            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+            <div>
+              <span class="contact-link-label">Email</span>
+              <div class="contact-link-val">waseemakramdc25@gmail.com</div>
+            </div>
+          </a>
+          <a href="https://wa.me/393280006347" target="_blank" class="contact-link">
+            <div class="contact-icon"><i class="fab fa-whatsapp"></i></div>
+            <div>
+              <span class="contact-link-label">WhatsApp</span>
+              <div class="contact-link-val">+39 328 000 6347</div>
+            </div>
+          </a>
+          <a href="https://www.linkedin.com/in/waseem-akram-network-engineer" target="_blank" class="contact-link">
+            <div class="contact-icon"><i class="fab fa-linkedin"></i></div>
+            <div>
+              <span class="contact-link-label">LinkedIn</span>
+              <div class="contact-link-val">waseem-akram-network-engineer</div>
+            </div>
+          </a>
+          <div class="contact-link" style="cursor:default">
+            <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <div>
+              <span class="contact-link-label">Location</span>
+              <div class="contact-link-val">Salerno, Italy</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form">
+        <div class="form-field">
+          <label class="form-label">Your Name</label>
+          <input class="form-input" type="text" placeholder="John Doe"/>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" type="email" placeholder="hello@example.com"/>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Subject</label>
+          <input class="form-input" type="text" placeholder="Job Opportunity / Collaboration"/>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Message</label>
+          <textarea class="form-textarea" placeholder="Your message here..."></textarea>
+        </div>
+        <a href="mailto:waseemakramdc25@gmail.com" class="btn-primary" style="justify-content:center;text-align:center">
+          <i class="fas fa-paper-plane"></i> Send Message
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-links">
+    <a href="#about">About</a>
+    <a href="#experience">Experience</a>
+    <a href="#skills">Skills</a>
+    <a href="https://www.linkedin.com/in/waseem-akram-network-engineer" target="_blank">LinkedIn</a>
+    <a href="mailto:waseemakramdc25@gmail.com">Email</a>
+  </div>
+  <p>Designed &amp; built for <span class="accent">Waseem Akram</span> · Network Engineer &amp; IoT Graduate · Salerno, Italy</p>
+  <p style="margin-top:0.4rem;font-size:0.6rem;opacity:0.6">waseemakramdc25@gmail.com · +39 328 000 6347</p>
+</footer>
+
+<script>
+// ── ANIMATED CANVAS BACKGROUND ──
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+const nodes = [];
+const NODE_COUNT = 60;
+
+for (let i = 0; i < NODE_COUNT; i++) {
+  nodes.push({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    vx: (Math.random() - 0.5) * 0.4,
+    vy: (Math.random() - 0.5) * 0.4,
+    r: Math.random() * 2 + 1
+  });
+}
+
+function drawCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw connections
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 140) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(0,212,255,${(1 - dist/140) * 0.18})`;
+        ctx.lineWidth = 0.5;
+        ctx.moveTo(nodes[i].x, nodes[i].y);
+        ctx.lineTo(nodes[j].x, nodes[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Draw nodes
+  nodes.forEach(n => {
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,212,255,0.5)';
+    ctx.fill();
+
+    // Move
+    n.x += n.vx;
+    n.y += n.vy;
+    if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+    if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+  });
+
+  requestAnimationFrame(drawCanvas);
+}
+drawCanvas();
+
+// ── MOBILE MENU ──
+function toggleMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+// ── SCROLL REVEAL ──
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ── ACTIVE NAV ──
+const sections = document.querySelectorAll('[id]');
+const navAs = document.querySelectorAll('.nav-links a');
+
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 220) cur = s.getAttribute('id');
+  });
+  navAs.forEach(a => {
+    const matches = a.getAttribute('href') === '#' + cur;
+    a.style.color = matches ? 'var(--cyan)' : '';
+  });
+});
+</script>
+</body>
+</html>
