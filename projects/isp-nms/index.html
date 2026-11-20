@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="dark light" />
+<link rel="icon" href="data:," />
+<title>ISP NMS — Web GUI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a111f; --bg2:#0d1626; --panel:#111c30; --panel2:#0f1930; --line:#1e2e4a; --line2:#243656;
+    --text:#e8eef7; --muted:#93a4bd; --muted2:#6b7d99;
+    --green:#2fd67a; --green-dim:#123b26; --amber:#f5b544; --amber-dim:#3a2c10;
+    --red:#ff6b6b; --red-dim:#3d1a1e; --blue:#4da3ff; --blue-dim:#132c4a;
+    --chip:#16253f;
+    --shadow:0 10px 30px rgba(0,0,0,.35);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#eef2f7; --bg2:#e6ecf3; --panel:#ffffff; --panel2:#f7f9fc; --line:#d7e0ec; --line2:#c3d0e2;
+      --text:#12233c; --muted:#54687f; --muted2:#7a8ca3;
+      --green:#0f9d58; --green-dim:#e2f5ea; --amber:#b97d0a; --amber-dim:#fdf0d3;
+      --red:#d63a3a; --red-dim:#fde8e8; --blue:#1f6fd6; --blue-dim:#e2eefc;
+      --chip:#eef3f9; --shadow:0 10px 24px rgba(18,35,60,.08);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.45}
+  button,[role="button"],select,input{font:inherit}
+  button{min-height:40px}
+  a{color:var(--blue)}
+  .mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+
+  /* Top bar */
+  .topbar{position:sticky;top:0;z-index:20;background:var(--bg2);border-bottom:1px solid var(--line);backdrop-filter:saturate(1.2)}
+  .topbar-in{max-width:1320px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .mark{width:40px;height:40px;border-radius:10px;background:#0e2a1c;border:1px solid #1f5c3a;display:grid;place-items:center;flex:none}
+  @media (prefers-color-scheme: light){.mark{background:#e2f5ea;border-color:#bfe6cf}}
+  .mark svg{width:22px;height:22px}
+  .brand h1{font-size:19px;line-height:1;margin:0;letter-spacing:.2px;font-weight:700}
+  .brand p{margin:3px 0 0;font-size:12.5px;color:var(--muted)}
+  .sys{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .pill{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid var(--line);background:var(--panel);border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted2);flex:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--muted2) 18%, transparent)}
+  .dot.amber{background:var(--amber);box-shadow:0 0 0 3px color-mix(in srgb,var(--amber) 18%, transparent)}
+  .pill.demo{border-color:#7a5a12;background:var(--amber-dim);color:var(--amber)}
+  .clock{font-size:12.5px;color:var(--muted)}
+
+  .wrap{max-width:1320px;margin:0 auto;padding:18px}
+
+  /* Stats */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+  .stat b{font-size:26px;line-height:1;display:block;font-weight:700}
+  .stat span{font-size:12.5px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  .stat small{display:block;margin-top:5px;color:var(--muted2);font-size:12.5px}
+  .stat.green b{color:var(--green)} .stat.amber b{color:var(--amber)} .stat.red b{color:var(--red)}
+
+  /* Topology strip */
+  .topo{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;overflow:hidden}
+  .topo-label{font-size:11px;letter-spacing:.08em;font-weight:700;color:var(--muted);text-transform:uppercase;margin-right:4px}
+  .node{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+  .node i{width:8px;height:8px;border-radius:50%;background:var(--muted2);display:block}
+  .node small{color:var(--muted);font-weight:500}
+  .link{flex:1;min-width:18px;height:2px;background:repeating-linear-gradient(90deg,var(--line2) 0 6px,transparent 6px 11px)}
+
+  /* Main layout */
+  .layout{display:grid;grid-template-columns:360px 1fr;gap:14px;align-items:start}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card-h{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .card-h h2{font-size:15px;margin:0;font-weight:700}
+  .card-h p{margin:0;font-size:12.5px;color:var(--muted);width:100%}
+
+  /* Queue */
+  .search{padding:12px 12px 4px}
+  .search input{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--text);min-height:44px;outline:none}
+  .search input:focus{border-color:var(--green)}
+  .filters{display:flex;gap:6px;padding:10px 12px 12px;flex-wrap:wrap}
+  .fbtn{border:1px solid var(--line);background:var(--chip);color:var(--muted);padding:7px 11px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;min-height:36px}
+  .fbtn.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .qlist{list-style:none;margin:0;padding:6px}
+  .qitem{width:100%;text-align:left;border:1px solid transparent;background:transparent;color:var(--text);border-radius:12px;padding:12px;cursor:pointer;display:block}
+  .qitem:hover{background:var(--panel2)}
+  .qitem.selected{background:var(--panel2);border-color:var(--line2)}
+  .qtop{display:flex;align-items:center;gap:8px}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--blue-dim);color:var(--blue);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+  .qname{font-weight:700;font-size:14.5px;line-height:1.1}
+  .qid{font-size:12px;color:var(--muted)}
+  .qstatus{margin-left:auto;text-align:right}
+  .badge{display:inline-flex;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+  .b-off{background:var(--red-dim);color:var(--red)} .b-on{background:var(--green-dim);color:var(--green)} .b-slow{background:var(--amber-dim);color:var(--amber)} .b-none{background:var(--chip);color:var(--muted)}
+  .b-visit{background:var(--red-dim);color:var(--red)} .b-resolved{background:var(--green-dim);color:var(--green)} .b-billing{background:var(--amber-dim);color:var(--amber)} .b-nofault{background:var(--blue-dim);color:var(--blue)}
+  .qcomplaint{margin:8px 0 0 42px;font-size:13px;color:var(--muted);line-height:1.35}
+  .qmeta{margin:6px 0 0 42px;font-size:12px;color:var(--muted2);display:flex;gap:10px;flex-wrap:wrap}
+  .empty{padding:22px 16px;color:var(--muted);text-align:center;font-size:14px}
+
+  /* Console */
+  .cust-head{padding:16px;display:flex;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  .cust-head .avatar{width:48px;height:48px;font-size:16px}
+  .cust-head h2{margin:0;font-size:20px;line-height:1.15}
+  .cust-head p{margin:4px 0 0;color:var(--muted);font-size:13.5px}
+  .cust-facts{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}
+  .fact{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 11px;min-width:96px}
+  .fact span{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .fact b{font-size:14px}
+  .actions{padding:14px 16px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--panel2)}
+  .btn{border-radius:10px;border:1px solid var(--line);padding:10px 16px;font-weight:700;cursor:pointer;background:var(--panel);color:var(--text);min-height:44px}
+  .btn.primary{background:var(--green);border-color:var(--green);color:#06180e}
+  .btn.primary:disabled{opacity:.55;cursor:wait}
+  .btn:active{transform:translateY(1px)}
+  .progress{height:6px;background:var(--line);border-radius:99px;overflow:hidden;flex:1;min-width:140px;align-self:center}
+  .progress i{display:block;height:100%;width:0;background:var(--green);transition:width .35s ease}
+
+  .console-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:0}
+  .steps-pane{padding:8px 16px 16px;border-right:1px solid var(--line)}
+  .steps-pane h3,.log-pane h3{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:14px 0 10px}
+  .step{display:flex;gap:12px;padding:11px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:0}
+  .step-ic{width:34px;height:34px;border-radius:50%;border:2px solid var(--line2);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none;color:var(--muted);background:var(--panel)}
+  .step.running .step-ic{border-color:var(--amber);color:var(--amber)}
+  .step.done .step-ic{border-color:var(--green);color:var(--green);background:var(--green-dim)}
+  .step.ok .step-ic{border-color:var(--green);background:var(--green);color:#06180e}
+  .step.visit .step-ic{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+  .step.billing .step-ic{border-color:var(--amber);background:var(--amber-dim);color:var(--amber)}
+  .step.skipped{opacity:.48}
+  .step b{font-size:14.5px;display:block}
+  .step p{margin:2px 0 0;font-size:13.5px;color:var(--muted)}
+  .step .tag{margin-left:auto;flex:none}
+  .spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--line2);border-top-color:var(--amber);animation:sp 0.7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){.spin{animation:none}.progress i{transition:none}}
+  .idle{padding:26px 8px;color:var(--muted);text-align:center}
+  .idle strong{color:var(--text);display:block;font-size:16px;margin-bottom:6px}
+
+  .log-pane{padding:8px 16px 16px;min-width:0}
+  .log{background:#070d18;color:#c9e7d4;border:1px solid #1c2c47;border-radius:12px;padding:13px 14px;font-size:12.5px;line-height:1.65;min-height:238px;max-height:340px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+  @media (prefers-color-scheme: light){.log{background:#0b1526;color:#c9e7d4}}
+  .log .dim{color:#6f8aa8}.log .ok{color:#2fd67a}.log .warn{color:#f5b544}.log .bad{color:#ff8585}
+
+  .verdict{margin:0 16px 16px;border-radius:12px;padding:15px 16px;display:none;gap:12px;align-items:flex-start}
+  .verdict.show{display:flex}
+  .verdict.resolved{background:var(--green-dim);border:1px solid var(--green)}
+  .verdict.visit{background:var(--red-dim);border:1px solid var(--red)}
+  .verdict.billing{background:var(--amber-dim);border:1px solid var(--amber)}
+  .verdict.nofault{background:var(--blue-dim);border:1px solid var(--blue)}
+  .verdict h3{margin:0;font-size:16px}
+  .verdict p{margin:4px 0 0;font-size:13.5px;color:var(--text);opacity:.9}
+  .verdict .vlabel{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;opacity:.75}
+
+  .jsonbox{display:none;margin:0 16px 16px}
+  .jsonbox.show{display:block}
+  .jsonbox pre{background:#070d18;color:#d6e4f2;border:1px solid #1c2c47;border-radius:12px;padding:14px;overflow:auto;font-size:12px;line-height:1.55;max-height:360px}
+
+  /* Flow explainer */
+  .flow{margin-top:14px;padding:16px}
+  .flow h2{font-size:15px;margin:0 0 4px}
+  .flow>p{margin:0 0 14px;color:var(--muted);font-size:13.5px}
+  .flowgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+  .fstep{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}
+  .fstep b{display:flex;align-items:center;gap:8px;font-size:13.5px}
+  .fstep b i{width:24px;height:24px;border-radius:50%;background:var(--green-dim);color:var(--green);display:grid;place-items:center;font-style:normal;font-size:12px;flex:none}
+  .fstep p{margin:7px 0 0;font-size:12.5px;color:var(--muted);line-height:1.4}
+  .note{margin-top:14px;font-size:13px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 16px}
+  .note strong{color:var(--text)}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:50;box-shadow:var(--shadow)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:980px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .layout{grid-template-columns:1fr}
+    .console-grid{grid-template-columns:1fr}
+    .steps-pane{border-right:0;border-bottom:1px solid var(--line)}
+    .flowgrid{grid-template-columns:repeat(2,1fr)}
+    .cust-facts{margin-left:0}
+    .sys .clock{display:none}
+  }
+  @media (max-width:520px){ .flowgrid{grid-template-columns:1fr} .wrap{padding:12px} }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2fd67a" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2.2" fill="#2fd67a" stroke="none"/><path d="M7.5 16.5a6.4 6.4 0 0 1 0-9M16.5 7.5a6.4 6.4 0 0 1 0 9M4.6 19.4a10.5 10.5 0 0 1 0-14.8M19.4 4.6a10.5 10.5 0 0 1 0 14.8"/></svg>
+      </div>
+      <div>
+        <h1>ISP NMS</h1>
+        <p>Network Operations · Remote Fault Diagnostics</p>
+      </div>
+    </div>
+    <div class="sys" aria-label="System status">
+      <span class="pill"><span class="dot"></span> MikroTik Core · demo</span>
+      <span class="pill"><span class="dot"></span> OLT · demo</span>
+      <span class="pill"><span class="dot"></span> Billing · demo</span>
+      <span class="pill demo">Demo data — not connected to live systems</span>
+      <span class="clock mono" id="clock"></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="stats" aria-label="Network summary">
+    <div class="stat"><span>Customers</span><b id="stTotal">9</b><small>Demo accounts loaded from the CLI engine</small></div>
+    <div class="stat red"><span>Offline now</span><b id="stOffline">–</b><small>Needs the diagnostic flow, not a visit first</small></div>
+    <div class="stat amber"><span>Slow / degraded</span><b id="stSlow">–</b><small>Check speed usage before anything else</small></div>
+    <div class="stat green"><span>Diagnosed this session</span><b id="stDone">0</b><small id="stDoneSub">No runs yet — pick a customer and run</small></div>
+  </section>
+
+  <div class="topo" aria-label="Network path">
+    <span class="topo-label">Path (demo)</span>
+    <div class="node"><i></i> Internet <small>Upstream</small></div><div class="link"></div>
+    <div class="node"><i></i> MikroTik Core <small>PPPoE · Queues</small></div><div class="link"></div>
+    <div class="node"><i></i> OLT <small>Fibre · ONT restart</small></div><div class="link"></div>
+    <div class="node"><i></i> Customer ONT <small>Signal in dBm</small></div>
+  </div>
+
+  <div class="layout">
+
+    <!-- Queue -->
+    <section class="card" aria-label="Customer queue">
+      <div class="card-h">
+        <h2>Customer queue</h2>
+        <span class="badge b-none" id="queueCount">9 waiting</span>
+        <p>Same 9 demo customers as <span class="mono">nms list</span>. Click one, then run the diagnosis.</p>
+      </div>
+      <div class="search"><input id="search" type="search" placeholder="Search name, ID or complaint…" aria-label="Search customers"></div>
+      <div class="filters" role="group" aria-label="Filter customers">
+        <button class="fbtn active" data-filter="all">All</button>
+        <button class="fbtn" data-filter="offline">Offline</button>
+        <button class="fbtn" data-filter="slow">Slow</button>
+        <button class="fbtn" data-filter="online">Online</button>
+      </div>
+      <ul class="qlist" id="qlist"></ul>
+      <div class="empty" id="qempty" hidden>No customer matches that search.</div>
+    </section>
+
+    <!-- Console -->
+    <section class="card" aria-label="Diagnostic console">
+      <div class="cust-head">
+        <div class="avatar" id="cAvatar">ZN</div>
+        <div>
+          <h2 id="cName">—</h2>
+          <p id="cComplaint">—</p>
+        </div>
+        <div class="cust-facts">
+          <div class="fact"><span>Customer ID</span><b class="mono" id="cId">—</b></div>
+          <div class="fact"><span>Plan</span><b id="cPlan">—</b></div>
+          <div class="fact"><span>Status</span><b id="cStatus">—</b></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="runBtn">▶ Run diagnosis</button>
+        <button class="btn" id="runAllBtn">Run all 9</button>
+        <button class="btn" id="copyBtn" disabled>Copy report</button>
+        <button class="btn" id="jsonBtn" disabled>View JSON</button>
+        <div class="progress" aria-hidden="true"><i id="progBar"></i></div>
+      </div>
+
+      <div class="console-grid">
+        <div class="steps-pane">
+          <h3>Diagnostic flow — 6 steps, in order</h3>
+          <div id="steps">
+            <div class="idle"><strong>No diagnosis run yet</strong>Press “Run diagnosis” and the flow checks this customer step by step — online status, speed usage, fibre signal, OLT restart, signal re-check, redial — then gives a verdict.</div>
+          </div>
+        </div>
+        <div class="log-pane">
+          <h3>Console log</h3>
+          <div class="log mono" id="log"><span class="dim">isp-nms gui — engine ready
+Waiting for a diagnosis run…</span></div>
+        </div>
+      </div>
+
+      <div class="verdict" id="verdict" role="status"></div>
+
+      <div class="jsonbox" id="jsonBox"><pre class="mono" id="jsonPre"></pre></div>
+    </section>
+  </div>
+
+  <section class="card flow">
+    <h2>How the flow works — your on-site routine, done from the desk</h2>
+    <p>At Pace, the visit was for diagnosis, not the fix. This flow does that diagnosis remotely, in the same order, so only a physically broken cable still needs a visit.</p>
+    <div class="flowgrid">
+      <div class="fstep"><b><i>1</i> Online status</b><p>Is the customer online? If offline, is the account in good standing or is it billing?</p></div>
+      <div class="fstep"><b><i>2</i> Speed usage</b><p>Read live usage on MikroTik. Using the full allocated speed explains “slow” — no fault.</p></div>
+      <div class="fstep"><b><i>3</i> Fibre signal</b><p>ONT signal in dBm. Around −20 is normal; near −30 or worse points to a physical fault.</p></div>
+      <div class="fstep"><b><i>4</i> Restart via OLT</b><p>Restart the ONT remotely. A stuck router is the most common fix — no visit needed.</p></div>
+      <div class="fstep"><b><i>5</i> Re-check signal</b><p>Read the signal again after restart. If it degraded, the fault is physical.</p></div>
+      <div class="fstep"><b><i>6</i> Redial from server</b><p>Redial the PPPoE session from the server. Last remote step before a visit is booked.</p></div>
+    </div>
+  </section>
+
+  <p class="note"><strong>Honest status:</strong> this GUI runs on the same demo data as the CLI — the customers are demo accounts and restarts/redials are simulated. Wiring it to a real MikroTik, OLT and billing system is the next build step; the flow, verdicts and report format already match the tested CLI engine (12/12 tests passing).</p>
+
+</div>
+
+<div class="toast" id="toast">Report copied</div>
+
+<script>
+var CUSTOMERS = [
+  { id:"C1001", name:"Ali Raza", plan:100, status:"online", statusLabel:"Online", complaint:"Slow internet — using full allocated speed",
+    verdict:"nofault", verdictLabel:"No fault — explained", summary:"Customer is online and using the full allocated speed. The connection is working as sold; “slow” is saturation, not a fault.",
+    steps:[
+      {name:"Online status", outcome:"next", detail:"Online, account in good standing."},
+      {name:"Speed usage", outcome:"ok", detail:"Using 98 of 100 Mbps — full allocated speed. This explains the slowness."},
+      {name:"Fibre signal", outcome:"skipped", detail:"Not needed — cause already found at step 2."},
+      {name:"Restart via OLT", outcome:"skipped", detail:"Not needed — no fault to fix."},
+      {name:"Re-check signal", outcome:"skipped", detail:"Skipped."},
+      {name:"Redial from server", outcome:"skipped", detail:"Skipped."}
+    ]},
+  { id:"C1002", name:"Sara Khan", plan:50, status:"offline", statusLabel:"Offline", complaint:"Offline — bill unpaid",
+    verdict:"billing", verdictLabel:"Billing issue", summary:"Customer is offline because the bill is unpaid. This is not a network fault — no restart or visit will help until the account is settled.",
+    steps:[
+      {name:"Online status", outcome:"billing", detail:"Offline — account suspended, bill unpaid."},
+      {name:"Speed usage", outcome:"skipped", detail:"Customer offline — no usage to read."},
+      {name:"Fibre signal", outcome:"skipped", detail:"Skipped — billing issue, not a line fault."},
+      {name:"Restart via OLT", outcome:"skipped", detail:"Skipped."},
+      {name:"Re-check signal", outcome:"skipped", detail:"Skipped."},
+      {name:"Redial from server", outcome:"skipped", detail:"Skipped."}
+    ]},
+  { id:"C1003", name:"Bilal Ahmed", plan:100, status:"offline", statusLabel:"Offline", complaint:"No internet — restart via OLT fixes it",
+    verdict:"resolved", verdictLabel:"Resolved remotely", summary:"Fixed by restarting the ONT via the OLT. No visit needed.",
+    steps:[
+      {name:"Online status", outcome:"next", detail:"Offline, account in good standing — treat as fault."},
+      {name:"Speed usage", outcome:"skipped", detail:"Customer offline — no usage to read."},
+      {name:"Fibre signal", outcome:"next", detail:"−19 dBm — normal."},
+      {name:"Restart via OLT", outcome:"ok", detail:"Restarted via OLT — customer back online and working."},
+      {name:"Re-check signal", outcome:"skipped", detail:"Not needed — fixed at step 4."},
+      {name:"Redial from server", outcome:"skipped", detail:"Not needed — fixed at step 4."}
+    ]},
+  { id:"C1004", name:"Hina Malik", plan:50, status:"offline", statusLabel:"Offline", complaint:"Fibre signal bad — likely physical fault",
+    verdict:"visit", verdictLabel:"Visit needed", summary:"Fibre signal is critically low (−33 dBm), which points to a physical fault — damaged fibre, dirty connector or a bad splice. Book a visit; remote steps cannot fix this.",
+    steps:[
+      {name:"Online status", outcome:"next", detail:"Offline, account in good standing — treat as fault."},
+      {name:"Speed usage", outcome:"skipped", detail:"Customer offline — no usage to read."},
+      {name:"Fibre signal", outcome:"visit", detail:"−33 dBm — critically low. Likely physical fault."},
+      {name:"Restart via OLT", outcome:"skipped", detail:"Skipped — signal fault must be fixed on site first."},
+      {name:"Re-check signal", outcome:"skipped", detail:"Skipped."},
+      {name:"Redial from server", outcome:"skipped", detail:"Skipped."}
+    ]},
+  { id:"C1005", name:"Usman Tariq", plan:100, status:"slow", statusLabel:"Online · Slow", complaint:"Slow internet — stuck router, restart fixes it",
+    verdict:"resolved", verdictLabel:"Resolved remotely", summary:"Router was stuck — low usage, good signal. Fixed by restarting the ONT via the OLT. No visit needed.",
+    steps:[
+      {name:"Online status", outcome:"next", detail:"Online, account in good standing."},
+      {name:"Speed usage", outcome:"next", detail:"Using only 12 of 100 Mbps — not saturation. Something is stuck."},
+      {name:"Fibre signal", outcome:"next", detail:"−20 dBm — normal."},
+      {name:"Restart via OLT", outcome:"ok", detail:"Restarted via OLT — speed back to normal."},
+      {name:"Re-check signal", outcome:"skipped", detail:"Not needed — fixed at step 4."},
+      {name:"Redial from server", outcome:"skipped", detail:"Not needed — fixed at step 4."}
+    ]},
+  { id:"C1006", name:"Zainab Noor", plan:100, status:"offline", statusLabel:"Offline", complaint:"Restart does not help, redial fixes it",
+    verdict:"resolved", verdictLabel:"Resolved remotely", summary:"Fixed by redialling the user from the server.",
+    steps:[
+      {name:"Online status", outcome:"next", detail:"Offline, account in good standing — treat as fault."},
+      {name:"Speed usage", outcome:"skipped", detail:"Customer offline — no usage to read."},
+      {name:"Fibre signal", outcome:"next", detail:"−20 dBm — normal."},
+      {name:"Restart via OLT", outcome:"next", detail:"Restarted; still not working."},
+      {name:"Re-check signal", outcome:"next", detail:"−20 dBm — still normal."},
+      {name:"Redial from server", outcome:"ok", detail:"Working after redial."}
+    ]},
+  { id:"C1007", name:"Omar Farooq", plan:100, status:"online", statusLabel:"Online", complaint:"Nothing wrong anywhere (no fault found)",
+    verdict:"nofault", verdictLabel:"No fault found", summary:"Every check passes — online, normal usage, good fibre signal. No fault found on the network side.",
+    steps:[
+      {name:"Online status", outcome:"next", detail:"Online, account in good standing."},
+      {name:"Speed usage", outcome:"next", detail:"Using 34 of 100 Mbps — normal, not saturated."},
+      {name:"Fibre signal", outcome:"ok", detail:"−19 dBm — normal. All checks pass."},
+      {name:"Restart via OLT", outcome:"skipped", detail:"Not needed — no fault found."},
+      {name:"Re-check signal", outcome:"skipped", detail:"Skipped."},
+      {name:"Redial from server", outcome:"skipped", detail:"Skipped."}
+    ]},
+  { id:"C1008", name:"Ayesha Siddiqui", plan:50, status:"offline", statusLabel:"Offline", complaint:"Signal degrades after restart — visit",
+    verdict:"visit", verdictLabel:"Visit needed", summary:"Signal was borderline and degraded to −31 dBm after the restart. That pattern means a physical line problem — book a visit with the earlier steps already checked.",
+    steps:[
+      {name:"Online status", outcome:"next", detail:"Offline, account in good standing — treat as fault."},
+      {name:"Speed usage", outcome:"skipped", detail:"Customer offline — no usage to read."},
+      {name:"Fibre signal", outcome:"next", detail:"−24 dBm — borderline low."},
+      {name:"Restart via OLT", outcome:"next", detail:"Restarted; still not working."},
+      {name:"Re-check signal", outcome:"visit", detail:"−31 dBm — degraded after restart. Physical fault likely."},
+      {name:"Redial from server", outcome:"skipped", detail:"Skipped — no point redialling on a degraded line."}
+    ]},
+  { id:"C1009", name:"Hamza Sheikh", plan:100, status:"offline", statusLabel:"Offline", complaint:"Offline, nothing remote fixes it — visit",
+    verdict:"visit", verdictLabel:"Visit needed", summary:"All remote steps exhausted. Already checked remotely: online status, fibre signal, OLT restart, signal re-check and redial — the visit starts with the diagnosis already done.",
+    steps:[
+      {name:"Online status", outcome:"next", detail:"Offline, account in good standing — treat as fault."},
+      {name:"Speed usage", outcome:"skipped", detail:"Customer offline — no usage to read."},
+      {name:"Fibre signal", outcome:"next", detail:"−20 dBm — normal."},
+      {name:"Restart via OLT", outcome:"next", detail:"Restarted; still not working."},
+      {name:"Re-check signal", outcome:"next", detail:"−20 dBm — still normal."},
+      {name:"Redial from server", outcome:"visit", detail:"Still not working."}
+    ]}
+];
+
+var selectedId = "C1006";
+var filter = "all";
+var diagnosed = {}; // id -> true
+var running = false;
+var lastReport = null;
+
+function $(id){ return document.getElementById(id); }
+function initials(name){ return name.split(" ").map(function(w){return w[0];}).join("").slice(0,2).toUpperCase(); }
+function byId(id){ for(var i=0;i<CUSTOMERS.length;i++) if(CUSTOMERS[i].id===id) return CUSTOMERS[i]; return null; }
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+function statusBadge(c){
+  if(diagnosed[c.id]){
+    if(c.verdict==="resolved") return '<span class="badge b-resolved">Resolved remotely</span>';
+    if(c.verdict==="visit") return '<span class="badge b-visit">Visit needed</span>';
+    if(c.verdict==="billing") return '<span class="badge b-billing">Billing</span>';
+    return '<span class="badge b-nofault">No fault</span>';
+  }
+  if(c.status==="offline") return '<span class="badge b-off">Offline</span>';
+  if(c.status==="slow") return '<span class="badge b-slow">Slow</span>';
+  return '<span class="badge b-on">Online</span>';
+}
+
+function renderQueue(){
+  var q = $("search").value.trim().toLowerCase();
+  var list = $("qlist"); list.innerHTML = ""; var shown = 0;
+  CUSTOMERS.forEach(function(c){
+    var matchFilter = filter==="all" || c.status===filter;
+    var matchSearch = !q || (c.name+" "+c.id+" "+c.complaint).toLowerCase().indexOf(q)>-1;
+    if(!matchFilter || !matchSearch) return;
+    shown++;
+    var li = document.createElement("li");
+    var btn = document.createElement("button");
+    btn.className = "qitem" + (c.id===selectedId ? " selected" : "");
+    btn.setAttribute("aria-label", "Select " + c.name);
+    btn.innerHTML =
+      '<span class="qtop"><span class="avatar">'+initials(c.name)+'</span>'+
+      '<span><span class="qname">'+esc(c.name)+'</span><br><span class="qid mono">'+c.id+'</span></span>'+
+      '<span class="qstatus">'+statusBadge(c)+'</span></span>'+
+      '<span class="qcomplaint">'+esc(c.complaint)+'</span>'+
+      '<span class="qmeta"><span>'+c.plan+' Mbps plan</span><span>'+c.statusLabel+'</span></span>';
+    btn.addEventListener("click", function(){ selectCustomer(c.id); });
+    li.appendChild(btn); list.appendChild(li);
+  });
+  $("qempty").hidden = shown>0;
+  $("queueCount").textContent = shown + (shown===1 ? " shown" : " shown");
+}
+
+function selectCustomer(id){
+  if(running) return;
+  selectedId = id;
+  var c = byId(id);
+  $("cAvatar").textContent = initials(c.name);
+  $("cName").textContent = c.name;
+  $("cComplaint").textContent = c.complaint;
+  $("cId").textContent = c.id;
+  $("cPlan").textContent = c.plan + " Mbps";
+  $("cStatus").textContent = c.statusLabel;
+  $("verdict").className = "verdict"; $("verdict").innerHTML = "";
+  $("jsonBox").classList.remove("show");
+  $("copyBtn").disabled = true; $("jsonBtn").disabled = true;
+  $("progBar").style.width = "0%";
+  lastReport = null;
+  if(diagnosed[id]){
+    renderSteps(c, c.steps.length, -1);
+    showVerdict(c);
+    buildReport(c);
+    $("copyBtn").disabled = false; $("jsonBtn").disabled = false;
+    logLine("dim", "Loaded saved diagnosis for " + c.id + " — " + c.name);
+  } else {
+    $("steps").innerHTML = '<div class="idle"><strong>No diagnosis run yet for '+esc(c.name)+'</strong>Press “Run diagnosis” and the flow checks this customer step by step, then gives a verdict.</div>';
+    $("log").innerHTML = '<span class="dim">isp-nms gui — engine ready\nSelected '+c.id+' — '+esc(c.name)+'. Waiting for a run…</span>';
+  }
+  renderQueue();
+}
+
+function outcomeTag(o){
+  if(o==="ok") return '<span class="badge b-resolved">Fixed here</span>';
+  if(o==="visit") return '<span class="badge b-visit">Visit</span>';
+  if(o==="billing") return '<span class="badge b-billing">Billing</span>';
+  if(o==="skipped") return '<span class="badge b-none">Skipped</span>';
+  return '<span class="badge b-none">Checked</span>';
+}
+function outcomeIcon(o){
+  if(o==="ok") return "✓";
+  if(o==="visit") return "!";
+  if(o==="billing") return "€";
+  if(o==="skipped") return "–";
+  return "→";
+}
+
+function renderSteps(c, upto, runningIdx){
+  var html = "";
+  c.steps.forEach(function(s, i){
+    if(i >= upto && i !== runningIdx){ return; }
+    var cls = "step";
+    if(i === runningIdx) cls += " running";
+    else if(s.outcome==="ok") cls += " ok";
+    else if(s.outcome==="visit") cls += " visit";
+    else if(s.outcome==="billing") cls += " billing";
+    else if(s.outcome==="skipped") cls += " skipped";
+    else cls += " done";
+    html += '<div class="'+cls+'"><div class="step-ic">'+(i===runningIdx ? '<span class="spin"></span>' : outcomeIcon(s.outcome))+'</div>'+
+      '<div><b>'+(i+1)+'. '+esc(s.name)+'</b><p>'+(i===runningIdx ? 'Checking…' : esc(s.detail))+'</p></div>'+
+      (i===runningIdx ? '' : '<span class="tag">'+outcomeTag(s.outcome)+'</span>')+'</div>';
+  });
+  $("steps").innerHTML = html || '<div class="idle"><strong>Starting…</strong></div>';
+}
+
+function logLine(cls, text){
+  var log = $("log");
+  if(log.querySelector(".dim") && log.textContent.indexOf("Waiting")>-1) log.innerHTML = "";
+  var span = document.createElement("span"); span.className = cls; span.textContent = text + "\n";
+  log.appendChild(span); log.scrollTop = log.scrollHeight;
+}
+
+function verdictClass(v){ return v==="resolved" ? "resolved" : v==="visit" ? "visit" : v==="billing" ? "billing" : "nofault"; }
+function verdictKey(v){ return v==="resolved" ? "resolved_remotely" : v==="visit" ? "visit_needed" : v==="billing" ? "billing_issue" : "no_fault_found"; }
+
+function showVerdict(c){
+  var v = $("verdict");
+  v.className = "verdict show " + verdictClass(c.verdict);
+  v.innerHTML = '<div><div class="vlabel">Verdict · <span class="mono">'+verdictKey(c.verdict)+'</span></div><h3>'+esc(c.verdictLabel)+'</h3><p>'+esc(c.summary)+'</p></div>';
+}
+
+function buildReport(c){
+  var lines = [];
+  lines.push("Customer " + c.id + " - " + c.name + " (" + c.plan + " Mbps plan)");
+  lines.push("");
+  c.steps.forEach(function(s, i){
+    var mark = s.outcome==="ok" ? "[OK]" : s.outcome==="skipped" ? "[--]" : s.outcome==="visit" ? "[!!]" : s.outcome==="billing" ? "[€€]" : "[->]";
+    lines.push("  " + mark + " " + (i+1) + ". " + s.name + ": " + s.detail);
+  });
+  lines.push("");
+  lines.push("VERDICT: " + verdictKey(c.verdict));
+  lines.push(c.summary);
+  lastReport = { customer: c, text: lines.join("\n") };
+  var json = {
+    customer: { id: c.id, name: c.name, plan_mbps: c.plan },
+    steps: c.steps.map(function(s, i){ return { step: i+1, name: s.name, outcome: s.outcome==="ok" ? "ok" : s.outcome==="visit" ? "visit" : s.outcome==="billing" ? "billing" : s.outcome, detail: s.detail }; }),
+    verdict: verdictKey(c.verdict),
+    summary: c.summary
+  };
+  $("jsonPre").textContent = JSON.stringify(json, null, 2);
+}
+
+function updateStats(){
+  var off = CUSTOMERS.filter(function(c){return c.status==="offline";}).length;
+  var slow = CUSTOMERS.filter(function(c){return c.status==="slow";}).length;
+  $("stOffline").textContent = off;
+  $("stSlow").textContent = slow;
+  var done = Object.keys(diagnosed).length;
+  $("stDone").textContent = done;
+  if(done){
+    var res = CUSTOMERS.filter(function(c){return diagnosed[c.id] && c.verdict==="resolved";}).length;
+    var vis = CUSTOMERS.filter(function(c){return diagnosed[c.id] && c.verdict==="visit";}).length;
+    $("stDoneSub").textContent = res + " resolved remotely · " + vis + " need a visit";
+  }
+}
+
+function runDiagnosis(c, doneCb){
+  running = true;
+  $("runBtn").disabled = true; $("runAllBtn").disabled = true;
+  $("runBtn").textContent = "Running…";
+  $("verdict").className = "verdict"; $("jsonBox").classList.remove("show");
+  $("copyBtn").disabled = true; $("jsonBtn").disabled = true;
+  $("log").innerHTML = "";
+  logLine("dim", "$ nms diagnose " + c.id);
+  logLine("dim", "Customer " + c.id + " - " + c.name + " (" + c.plan + " Mbps plan)");
+  var i = 0;
+  function next(){
+    if(i > 0){
+      var prev = c.steps[i-1];
+      renderSteps(c, i, -1);
+      var cls = prev.outcome==="ok" ? "ok" : prev.outcome==="visit" || prev.outcome==="billing" ? "bad" : prev.outcome==="skipped" ? "dim" : "";
+      if(prev.outcome==="billing") cls = "warn";
+      logLine(cls, "  " + (prev.outcome==="ok" ? "[OK]" : prev.outcome==="skipped" ? "[--]" : prev.outcome==="visit" ? "[!!]" : "[->]") + " " + i + ". " + prev.name + ": " + prev.detail);
+      $("progBar").style.width = Math.round((i / c.steps.length) * 100) + "%";
+    }
+    if(i >= c.steps.length){
+      diagnosed[c.id] = true;
+      showVerdict(c); buildReport(c);
+      logLine(c.verdict==="resolved" ? "ok" : c.verdict==="visit" ? "bad" : "warn", "VERDICT: " + verdictKey(c.verdict) + " — " + c.summary);
+      $("copyBtn").disabled = false; $("jsonBtn").disabled = false;
+      running = false;
+      $("runBtn").disabled = false; $("runAllBtn").disabled = false;
+      $("runBtn").textContent = "↻ Run diagnosis again";
+      updateStats(); renderQueue();
+      if(doneCb) doneCb();
+      return;
+    }
+    renderSteps(c, i, i);
+    i++;
+    setTimeout(next, c.steps[i-1].outcome==="skipped" ? 260 : 720);
+  }
+  next();
+}
+
+$("runBtn").addEventListener("click", function(){ if(!running) runDiagnosis(byId(selectedId)); });
+$("runAllBtn").addEventListener("click", function(){
+  if(running) return;
+  var queue = CUSTOMERS.slice(); var idx = 0;
+  function step(){
+    if(idx >= queue.length) return;
+    var c = queue[idx++];
+    selectedId = c.id;
+    var cc = byId(c.id);
+    $("cAvatar").textContent = initials(cc.name); $("cName").textContent = cc.name;
+    $("cComplaint").textContent = cc.complaint; $("cId").textContent = cc.id;
+    $("cPlan").textContent = cc.plan + " Mbps"; $("cStatus").textContent = cc.statusLabel;
+    renderQueue();
+    runDiagnosis(cc, function(){ setTimeout(step, 350); });
+  }
+  step();
+});
+$("copyBtn").addEventListener("click", function(){
+  if(!lastReport) return;
+  function done(){ var t = $("toast"); t.classList.add("show"); setTimeout(function(){ t.classList.remove("show"); }, 1800); }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(lastReport.text).then(done, done);
+  } else {
+    var ta = document.createElement("textarea"); ta.value = lastReport.text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch(e){}
+    document.body.removeChild(ta); done();
+  }
+});
+$("jsonBtn").addEventListener("click", function(){ $("jsonBox").classList.toggle("show"); });
+$("search").addEventListener("input", renderQueue);
+document.querySelectorAll(".fbtn").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll(".fbtn").forEach(function(x){ x.classList.remove("active"); });
+    b.classList.add("active"); filter = b.getAttribute("data-filter"); renderQueue();
+  });
+});
+
+function tick(){
+  var d = new Date();
+  $("clock").textContent = d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+}
+setInterval(tick, 1000); tick();
+
+updateStats();
+selectCustomer("C1006");
+setTimeout(function(){ if(!running && !diagnosed["C1006"]) runDiagnosis(byId("C1006")); }, 600);
+</script>
+</body>
+</html>
